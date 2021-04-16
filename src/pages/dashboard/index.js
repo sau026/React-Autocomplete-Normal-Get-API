@@ -1,13 +1,14 @@
-import React from 'react'
-import Sidebar from '../../components/sidebar-left'
-import Header from '../../components/header'
-import { useSelector } from 'react-redux'
-import DataModal from '../../components/data-modal'
-import Table from '../../components/data-table'
+import React, {useState, useEffect} from 'react';
+import Sidebar from '../../components/sidebar-left';
+import Header from '../../components/header';
+import Autocomplete from '../../components/autocomplete';
+import axios from 'axios';
 import './index.scss';
+import userEvent from '@testing-library/user-event';
 
 const Dashboard = (props) => {
-  const userDetails = useSelector(state => state.todoDataReducer)
+
+  const [searchedResult, setSearchedResult] = useState(null);
 
   const getAppHeaderJSX = () => {
     return (
@@ -25,21 +26,28 @@ const Dashboard = (props) => {
     )
   }
 
-  const getTableJSX = () => {
-    return (
-      <>
-        <Table/>
-      </>
-    )
+  const searchTodoData = ()=>{
+    axios.get('https://jsonplaceholder.typicode.com/todos', {
+    })
+    .then(function (response) {
+      let actualData = response.data.map((ele => ele.title))
+      setSearchedResult(actualData)
+    })
+    .catch(function (error) {
+      console.log(error);
+    })
   }
 
   return (
     <div className="dashboard__page-conatiner -site-text-size">
-      {userDetails.selectedTodoListData ? <DataModal /> : null }
       {getAppSidebarJSX()}
       <div className="main-body">
         {getAppHeaderJSX()}
-        {getTableJSX()}
+        <Autocomplete 
+        searchValueProps={(e)=>searchTodoData()} 
+        searchedResult={searchedResult && JSON.stringify(searchedResult)} 
+        options={searchedResult}
+        ></Autocomplete>
       </div>
     </div>
   );
